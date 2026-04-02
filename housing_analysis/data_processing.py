@@ -38,6 +38,7 @@ def load_data(file_path: str) ->pd.DataFrame:
         return df
     except Exception as e:
         error_msg = f"Error loading data {str(e)}"
+        logger.error(error_msg)
         raise DataProcessingError(error_msg)
 
     
