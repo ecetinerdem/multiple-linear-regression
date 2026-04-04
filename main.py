@@ -15,6 +15,7 @@ from housing_analysis import (
     )
 
 from housing_analysis.logging_utils import logger
+from housing_analysis.visualization import print_results
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -98,7 +99,9 @@ def main() -> int:
             model, scaler = train_model(model_data)
 
             model_results = evaluate_model(model_data, model, scaler)
-            print(f"Test R2: {model_results.test_r2: .4f}")
+
+            print_results(model_data, model_results)
+
 
             if args.save_model:
                 save_model(model_results, args.model_path, args.metadata_path)

@@ -20,6 +20,9 @@ from housing_analysis.exceptions import (
 )
 
 from housing_analysis.logging_utils import logger
+from housing_analysis.visualization import (
+    print_results,
+)
 
 __all__ = [
     "load_data",
@@ -41,5 +44,6 @@ __all__ = [
     "print_predictions",
     "DataProcessingError",
     "ModelOperation",
-    "logger"
+    "logger",
+    "print_results"
 ]
