@@ -29,7 +29,7 @@ def load_data(file_path: str) ->pd.DataFrame:
         df = pd.read_csv(file_path)
 
         # Validate data
-        missing_columns = set(CONFIG["reqired_columns"]).difference(df.columns)
+        missing_columns = set(CONFIG["required_columns"]).difference(df.columns)
         if missing_columns:
             error_msg = f"Error loading data: {", ".join(missing_columns)}"
             logger.error(error_msg)
@@ -63,7 +63,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     # Handle outliers
     for col in CONFIG["required_columns"]:
         # Calculate mean
-        mean = processed_df.mean()
+        mean = processed_df[col].mean()
 
         # Calculate std
         std = processed_df[col].std()
@@ -83,8 +83,8 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
 
 def prepare_model_data(df: pd.DataFrame) -> ModelData:
     # Get X and y
-    X = df[CONFIG["feature_columns"]]
-    y = df[CONFIG["target_column"]]
+    X = df[CONFIG["feature_columns"]].values
+    y = df[CONFIG["target_column"]].values
 
     # Split data into Train and Test
     X_train, X_test, y_train, y_test = train_test_split(
@@ -106,4 +106,5 @@ def make_predictions(df: pd.DataFrame, model, scaler) -> np.ndarray:
         return predictions
    except Exception as e:
         error_msg = f"Error making predictions {str(e)}"
+        logger.error(error_msg)
         raise DataProcessingError(error_msg)

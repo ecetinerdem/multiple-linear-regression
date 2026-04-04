@@ -89,16 +89,16 @@ def save_model(model_results: ModelResults, model_path: str, meatadata_path: str
         intercept, coefficients = get_model_formula(model_results)
 
         metadata = {
-            "intercept": intercept,
-            "coeffecient": coefficients,
+            "intercept": float(intercept),
+            "coeffecient": [float(c) for c in coefficients],
             "feature_names": CONFIG["feature_columns"],
-            "target_name": CONFIG["target_columns"],
+            "target_name": CONFIG["target_column"],
             "train_r2": float(model_results.train_r2),
             "test_r2": float(model_results.test_r2),
             "train_rmse": float(model_results.train_rmse),
             "test_rmse": float(model_results.test_rmse),
         }
-        with open(meatadata_path, "r") as f:
+        with open(meatadata_path, "w") as f:
             json.dump(metadata, f, indent=4)
 
         logger.info(f"Model saved to {model_path}")

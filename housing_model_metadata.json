@@ -1,0 +1,16 @@
+{
+    "intercept": -112.08423701672496,
+    "coeffecient": [
+        0.16008112073670755,
+        43.18188973880952
+    ],
+    "feature_names": [
+        "square_footage",
+        "bedrooms"
+    ],
+    "target_name": "price_thousands",
+    "train_r2": 0.9957835858450743,
+    "test_r2": 0.9966838906866174,
+    "train_rmse": 10.58883481789138,
+    "test_rmse": 10.896760785058959
+}
