@@ -9,6 +9,54 @@ from housing_analysis.logging_utils import logger
 from housing_analysis.data_processing import ModelData
 from housing_analysis.model import ModelResults, get_model_formula
 
+def create_visualization(
+        data: ModelData,
+        model_results: ModelResults
+) -> Dict[str, Any]:
+    # Combine training and test data to get the full range of values
+    X_combined = np.vstack((data.X_train, data.X_test))
+
+    # Get the feature range for plotting
+    x_min, x_max = X_combined[:, 0].min(), X_combined[:, 0].max() # Square footage
+    y_min, y_max = X_combined[:, 1].min(), X_combined[:, 1].max() # Bedroom
+
+    feature_ranges = [
+        np.linspace(x_min, x_max, 100),
+        np.linspace(y_min, y_max, 100)
+    ]
+
+    # Calculate mean of features for regression line/plane
+    feature_means = X_combined.mean(axis=1)
+
+    # Get formula for display
+    intercept, coefficients = get_model_formula(model_results)
+    formula_text = f"Price = {intercept:.4f} + {coefficients[0]:.4f} x Square Footage + {coefficients[1]:.4f} x Bedrooms"
+
+    # Create mesh grid for 3d visualization
+    x_range = np.linspace(x_min, x_max, CONFIG["mesh_grid_size"])
+    y_range = np.linspace(y_min, y_max, CONFIG["mesh_grid_size"])
+    xx, yy = np.meshgrid(x_range, y_range)
+
+    # Prepare grid points for predictions
+    grid_points = np.c_[xx.ravel(), yy.ravel()]
+
+    # Scale grid points using the same scalar for training
+    grid_points_scaled = model_results.scaler.transform(grid_points)
+
+    # Make predictions
+    z_pred = model_results.model.predict(grid_points_scaled)
+
+    # Reshape the predictions
+    zz = z_pred.reshape(xx.shape)
+
+    return {
+        "feature_ranges": feature_ranges,
+        "feature_means": feature_means,
+        "formula_text": formula_text,
+        "xx": xx,
+        "yy": yy,
+        "zz": zz
+    }
 
 def print_results(data: ModelData, model_results: ModelResults) -> None:
     # Get the model formula
@@ -41,7 +89,8 @@ def print_results(data: ModelData, model_results: ModelResults) -> None:
 
     # Print sample of results
     print("\nTraining Data Sample (first five results)")
-    print(train.df.head().to_string(index=false))
+    print(train_df.head().to_string(index=False))
 
     print("\nTest Data Sample (first five results)")
-    print(test.df.head().to_string(index=false))
+    print(test_df.head().to_string(index=False))
+
