@@ -14,7 +14,7 @@ CONFIG = {
     "mesh_grid_size" : 20,
     "default_csv" : "house_data.csv",
     "output_image" : "housing_regression_data_2d.png",
-    "output_3d_image" :"housing_regression_3d.png,",
+    "output_3d_image" :"housing_regression_3d.png",
     "default_model_path" : "housing_model.pkl",
     "default_metadata_path" :  "housing_model_metadata.json",
     "required_columns" : ["square_footage", "bedrooms", "price_thousands"],

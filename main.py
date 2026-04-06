@@ -13,7 +13,8 @@ from housing_analysis import (
     save_model,
     train_model,
     create_2d_visualization,
-    create_visualization
+    create_visualization,
+    create_3d_visualization
     )
 
 from housing_analysis.logging_utils import logger
@@ -111,6 +112,14 @@ def main() -> int:
                 model_results,
                 viz_data,
                 CONFIG["output_image"],
+                show_plot
+            )
+            
+            create_3d_visualization(
+                model_data,
+                model_results,
+                viz_data,
+                CONFIG["output_3d_image"],
                 show_plot
             )
 

@@ -9,12 +9,79 @@ from housing_analysis.logging_utils import logger
 from housing_analysis.data_processing import ModelData
 from housing_analysis.model import ModelResults, get_model_formula
 
+def create_3d_visualization(
+        data: ModelData,
+        model_results: ModelResults,
+        viz_data: Dict[str, Any],
+        output_file: str,
+        show_plot: bool = True
+) -> None:
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+
+        # Create a figure and add a 3d subplot
+        fig = plt.figure(figsize=CONFIG["figure_size"])
+        ax = fig.add_subplot(111, projection="3d")
+
+        # Set initial view angle
+        ax.view_init(elev=30, azim=45)
+
+        # Plot training data points
+        ax.scatter(
+            data.X_train[:, 0],
+            data.X_train[:, 1],
+            data.y_train,
+            color= CONFIG["point_color"],
+            alpha=CONFIG["point_alpha"],
+            label="Training data"
+        )
+
+        # Plot test data points
+        ax.scatter(
+            data.X_test[:, 0],
+            data.X_test[:, 1],
+            data.y_test,
+            color= CONFIG["point_color"],
+            alpha=CONFIG["point_alpha"],
+            label="Test data"
+        )
+
+        # Plot the regression plain
+        surf = ax.plot_surface(
+            viz_data["xx"],
+            viz_data["yy"],
+            viz_data["zz"],
+            alpha=CONFIG["plain_alpha"],
+            color=CONFIG["plain_color"],
+            rstride=2,
+            cstride=2
+        )
+
+        # Add labels and title
+        ax.set_xlabel("Square Footage")
+        ax.set_ylabel("Bedrooms")
+        ax.set_zlabel("Price ($thousands $)")
+        ax.set_title("Multiple Linear Regression: 3D visualization with regression plain")
+
+        # Add formula text
+        plt.figtext(0.1, 0.01, viz_data["formula_text"], fontsize=12)
+
+        # Save the figure to a file
+        plt.savefig(output_file, bbox_inches="tight")
+        logger.info(f"3d plot save as {output_file}")
+
+        if show_plot:
+            plt.show()
+        
+        plt.close()
+
+
 def create_2d_visualization(
         data: ModelData,
         model_results: ModelResults,
         viz_data: Dict[str, Any],
         output_file: str,
-        show_plot: True
+        show_plot: bool = True
 ) -> None:
     # Create a figure with two side-by-side plots (1 row, 2 columns)
     fig, axes = plt.subplots(1, 2, figsize=CONFIG["figure_size"])
@@ -109,7 +176,7 @@ def create_visualization(
         np.linspace(y_min, y_max, 100)
     ]
 
-    # Calculate mean of features for regression line/plane
+    # Calculate mean of features for regression line/plain
     feature_means = X_combined.mean(axis=0)
 
     # Get formula for display
