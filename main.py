@@ -11,7 +11,9 @@ from housing_analysis import (
     prepare_model_data,
     preprocess_data,
     save_model,
-    train_model
+    train_model,
+    create_2d_visualization,
+    create_visualization
     )
 
 from housing_analysis.logging_utils import logger
@@ -101,6 +103,16 @@ def main() -> int:
             model_results = evaluate_model(model_data, model, scaler)
 
             print_results(model_data, model_results)
+
+            viz_data = create_visualization(model_data, model_results)
+            show_plot = not args.no_plot
+            create_2d_visualization(
+                model_data,
+                model_results,
+                viz_data,
+                CONFIG["output_image"],
+                show_plot
+            )
 
 
             if args.save_model:

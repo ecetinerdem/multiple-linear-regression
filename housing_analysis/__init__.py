@@ -22,6 +22,8 @@ from housing_analysis.exceptions import (
 from housing_analysis.logging_utils import logger
 from housing_analysis.visualization import (
     print_results,
+    create_2d_visualization,
+    create_visualization
 )
 
 __all__ = [
@@ -45,5 +47,7 @@ __all__ = [
     "DataProcessingError",
     "ModelOperation",
     "logger",
-    "print_results"
+    "print_results",
+    "create_2d_visualization",
+    "create_visualization"
 ]

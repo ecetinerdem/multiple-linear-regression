@@ -5,7 +5,7 @@ CONFIG = {
     "figure_size" : (12, 8),
     "point_color" : "blue",
     "test_point_color" : "green",
-    "time_color" : "red",
+    "line_color" : "red",
     "plain_color" : "cyan",
     "line_width" : 2,
     "grid_alpha" : 0.3,

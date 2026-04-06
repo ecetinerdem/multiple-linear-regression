@@ -9,6 +9,90 @@ from housing_analysis.logging_utils import logger
 from housing_analysis.data_processing import ModelData
 from housing_analysis.model import ModelResults, get_model_formula
 
+def create_2d_visualization(
+        data: ModelData,
+        model_results: ModelResults,
+        viz_data: Dict[str, Any],
+        output_file: str,
+        show_plot: True
+) -> None:
+    # Create a figure with two side-by-side plots (1 row, 2 columns)
+    fig, axes = plt.subplots(1, 2, figsize=CONFIG["figure_size"])
+    feature_names = CONFIG["feature_columns"]
+    feature_ranges = viz_data["feature_ranges"]
+    feature_means = viz_data["feature_means"]
+
+    # Createa a plot for each feature
+
+    for i, feature in enumerate(feature_names):
+        ax = axes[i]
+
+        # Extract feature values for this specific feature
+        X_train_feature = data.X_train[:, i]
+        X_test_feature = data.X_test[:, i]
+
+        # Plot training data point
+        ax.scatter(
+            X_train_feature, # X coords
+            data.y_train, # y coords
+            color=CONFIG["point_color"],
+            alpha=CONFIG["point_alpha"],
+            label="Training data"
+        )
+
+        
+        # Plot test data point
+        ax.scatter(
+            X_test_feature, # X coords
+            data.y_test, # y coords
+            color=CONFIG["test_point_color"],
+            alpha=CONFIG["point_alpha"],
+            label="Test data"
+        )
+
+        # Add regression line
+        if i == 0:
+            # Square footage line
+            line_X = np.c_[feature_ranges[0], np.full(
+                feature_ranges[0].shape,
+                feature_means[1]
+            )]
+        else:
+            # Bedrroms line
+            line_X = np.c_[np.full(feature_ranges[1].shape, feature_means[0]), feature_ranges[1]]
+
+        # Scale the line points and predict prices
+        line_X_scaled = model_results.scaler.transform(line_X)
+        line_y = model_results.model.predict(line_X_scaled)
+
+        # Plot the regression line
+        ax.plot(
+            feature_ranges[i],
+            line_y,
+            color=CONFIG["line_color"],
+            linewidth=CONFIG["line_width"],
+            label="Regression line"
+        )
+
+        # Add labels and title
+        ax.set_xlabel(feature.replace("_", " ").title())
+        ax.set_ylabel("Price (thousands $)")
+        ax.set_title(
+           f"Price vs {feature.replace('_', ' ').title()} with Regression Line"
+        )
+        ax.legend()
+        ax.grid(True, alpha=CONFIG["grid_alpha"])
+
+    # Add overall title
+    plt.suptitle("Multiple Linear Regression: Housing Price vs Features")
+    plt.tight_layout(rect=(0, 0, 1, 0.95))
+    plt.savefig(output_file)
+    logger.info(f"2d plot saved as {output_file}")
+
+    if show_plot:
+        plt.show()
+    plt.close()
+
 def create_visualization(
         data: ModelData,
         model_results: ModelResults
@@ -26,7 +110,7 @@ def create_visualization(
     ]
 
     # Calculate mean of features for regression line/plane
-    feature_means = X_combined.mean(axis=1)
+    feature_means = X_combined.mean(axis=0)
 
     # Get formula for display
     intercept, coefficients = get_model_formula(model_results)
@@ -75,7 +159,7 @@ def print_results(data: ModelData, model_results: ModelResults) -> None:
     train_df = pd.DataFrame({
         "Square Footage": data.X_train[:, 0],
         "Bedrooms": data.X_train[:, 1],
-        "Actual Price($K)": data.Y_train,
+        "Actual Price($K)": data.y_train,
         "Predicted Price ($K)": np.round(model_results.train_predictions, 2)
     })
 
@@ -83,7 +167,7 @@ def print_results(data: ModelData, model_results: ModelResults) -> None:
     test_df = pd.DataFrame({
         "Square Footage": data.X_test[:, 0],
         "Bedrooms": data.X_test[:, 1],
-        "Actual Price($K)": data.Y_test,
+        "Actual Price($K)": data.y_test,
         "Predicted Price ($K)": np.round(model_results.test_predictions, 2)
     })
 
