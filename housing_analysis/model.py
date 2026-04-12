@@ -90,7 +90,7 @@ def save_model(model_results: ModelResults, model_path: str, meatadata_path: str
 
         metadata = {
             "intercept": float(intercept),
-            "coeffecient": [float(c) for c in coefficients],
+            "coefficients": [float(c) for c in coefficients],
             "feature_names": CONFIG["feature_columns"],
             "target_name": CONFIG["target_column"],
             "train_r2": float(model_results.train_r2),
@@ -108,6 +108,46 @@ def save_model(model_results: ModelResults, model_path: str, meatadata_path: str
         logger.error(error_msg)
         raise ModelOperation(error_msg)
     
+def save_model_to_json(model_results: ModelResults, data: ModelData, json_path: str) -> None:
+    try:
+        # Create a directory if does not exist
+        json_dir = os.path.dirname(json_path)
+        if json_dir and not os.path.exists(json_dir):
+            os.makedirs(json_dir)
+        standardized_coefficients = model_results.model.coef_
+        standardized_intercept = model_results.model.intercept_
+
+        feature_means = model_results.scaler.mean_
+        feature_std_devs = model_results.scaler.scale_
+
+        num_samples = len(data.Xtrain) + len(data.X_test)
+        json_data = {
+            "coefficients": standardized_coefficients.toList(),
+            "intercept": float(standardized_intercept),
+            "features": CONFIG["feature_columns"],
+            "target": CONFIG["target_column"],
+            "r_squared": float(model_results.test_r2),
+            "feature_means": feature_means.toList(),
+            "feature_std_devs": feature_std_devs.toList(),
+            "is_normalized": True,
+            "num_samples": num_samples,
+            "version": "1.0"
+        }
+
+        with open(json_path, "w") as f:
+            json.dump(json_data, f, indent=3)
+        logger.info(f"Model save to JSON format: {json_path}")
+        print(f"\nSaved model coefficients (standardized): {standardized_coefficients}")
+        print(f"\nSaved model intercept (standardized): {standardized_intercept}")
+        print(f"Feature means: {feature_means}")
+        print(f"Feature std devs: {feature_std_devs}")
+
+    except Exception as e:
+        error_msg = f"Error saved to {str(e)}"
+        logger.info(error_msg)
+        raise ModelOperation(error_msg)
+
+
 
 def get_model_formula(model_results: ModelResults) -> Tuple[float, List[float]]:
     model = model_results.model

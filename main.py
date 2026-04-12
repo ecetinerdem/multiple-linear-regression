@@ -18,6 +18,7 @@ from housing_analysis import (
     )
 
 from housing_analysis.logging_utils import logger
+from housing_analysis.model import save_model_to_json
 from housing_analysis.visualization import print_results
 
 
@@ -64,6 +65,17 @@ def parse_arguments() -> argparse.Namespace:
         "--predict-only",
         action="store_true",
         help="Only make predictions using a loaded model, no training or evaluation"
+    )
+    parser.add_argument(
+        "--save-json",
+        action="store_true",
+        help="Save the trained model as JSON format"
+    )
+    parser.add_argument(
+        "--json-path",
+        type=str,
+        default="housing_model.json",
+        help="Path to save model in JSON format(default: housing_model.json)"
     )
 
     args, unknown = parser.parse_known_args()
@@ -126,6 +138,10 @@ def main() -> int:
 
             if args.save_model:
                 save_model(model_results, args.model_path, args.metadata_path)
+            
+            # Save model to JSON format if requested
+            if args.save_json:
+                save_model_to_json(model_results, model_data, args.json_path)
     except DataProcessingError as e:
         logger.error(f"Data Processing error: {str(e)}")
         return 1

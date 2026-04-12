@@ -11,6 +11,7 @@ from housing_analysis.model import (
     save_model,
     load_model,
     get_model_formula,
+    save_model_to_json,
     ModelResults
 )
 
@@ -36,6 +37,7 @@ __all__ = [
     "train_model",
     "evaluate_model",
     "save_model",
+    "save_model_to_json",
     "load_model",
     "get_model_formula",
     "ModelResults",
